@@ -1,0 +1,33 @@
+name: Update EPG
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Everyday at 03:00 UTC
+  workflow_dispatch:  
+
+jobs:
+  update_epg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Install
+        run: sudo apt-get install -y wget gzip
+
+      - name: Execute
+        run: |
+          chmod +x .github/scripts/*
+          for script in .github/scripts/*.sh
+            do
+              if [[ -f "$script" && -x "$script" ]]; then
+                  echo "Executing script"
+                "$script"  
+                cat $script
+              fi
+            done
+
+      - name: Update
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "EPG updated with script"
